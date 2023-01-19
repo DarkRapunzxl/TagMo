@@ -12,7 +12,6 @@ import android.bluetooth.*
 import android.content.Intent
 import android.os.*
 import androidx.annotation.RequiresApi
-import com.hiddenramblings.tagmo.bluetooth.GattArray
 import com.hiddenramblings.tagmo.eightbit.io.Debug
 import com.hiddenramblings.tagmo.nfctech.NfcByte
 import java.util.*
@@ -410,6 +409,8 @@ class PuckGattService : Service() {
                 val chunk = chunks[i]
                 if (null == mCharacteristicTX) continue
                 puckHandler.postDelayed({
+                    mCharacteristicTX!!.writeType =
+                        BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                     if (Debug.isNewer(Build.VERSION_CODES.TIRAMISU)) {
                         mBluetoothGatt!!.writeCharacteristic(
                             mCharacteristicTX!!, chunk,
@@ -417,8 +418,6 @@ class PuckGattService : Service() {
                         )
                     } else @Suppress("DEPRECATION") {
                         mCharacteristicTX!!.value = chunk
-                        mCharacteristicTX!!.writeType =
-                            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                         mBluetoothGatt!!.writeCharacteristic(mCharacteristicTX)
                     }
                 }, (i + 1) * chunkTimeout)

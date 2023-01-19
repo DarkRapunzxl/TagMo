@@ -51,7 +51,7 @@ class NfcActivity : AppCompatActivity() {
         else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
     }
 
-    private var prefs: Preferences? = null
+    private lateinit var prefs: Preferences
     private lateinit var txtMessage: TextView
     private lateinit var txtError: TextView
     private lateinit var imgNfcBar: AppCompatImageView
@@ -61,7 +61,7 @@ class NfcActivity : AppCompatActivity() {
     private lateinit var nfcAnimation: Animation
 
     private var nfcAdapter: NfcAdapter? = null
-    private var keyManager: KeyManager? = null
+    private lateinit var keyManager: KeyManager
     private val foomiibo = Foomiibo()
 
     private var isEliteIntent = false
@@ -128,7 +128,7 @@ class NfcActivity : AppCompatActivity() {
                 )
             )
         } else if (isEliteIntent) {
-            setPosition(bankPicker, prefs!!.eliteActiveBank())
+            setPosition(bankPicker, prefs.eliteActiveBank())
         } else {
             bankTextView.isGone = true
             bankPicker.isGone = true
@@ -145,7 +145,7 @@ class NfcActivity : AppCompatActivity() {
                     bankPicker.isEnabled = false
                     bankTextView.isGone = true
                 }
-                bankPicker.maxValue = prefs!!.eliteBankCount()
+                bankPicker.maxValue = prefs.eliteBankCount()
             }
             NFCIntent.ACTION_WRITE_ALL_TAGS,
             NFCIntent.ACTION_ERASE_ALL_TAGS,
@@ -250,7 +250,7 @@ class NfcActivity : AppCompatActivity() {
                 hasTestedElite = true
                 if (TagArray.isPowerTag(mifare)) {
                     showMessage(R.string.tag_scanning, getString(R.string.power_tag))
-                } else if (prefs!!.eliteEnabled()) {
+                } else if (prefs.eliteEnabled()) {
                     isEliteDevice = (TagArray.isElite(mifare)
                             || NFCIntent.ACTION_UNLOCK_UNIT == mode
                             || NFCIntent.ACTION_BLIND_SCAN == mode)
@@ -292,7 +292,7 @@ class NfcActivity : AppCompatActivity() {
                         update = TagReader.readFromTag(mifare)
                         TagWriter.writeToTagRaw(
                             mifare!!, data!!,
-                            prefs!!.tagTypeValidation()
+                            prefs.tagTypeValidation()
                         )
                         setResult(RESULT_OK)
                     }
@@ -308,7 +308,7 @@ class NfcActivity : AppCompatActivity() {
                             hasTestedElite = false
                             return
                         }
-                        TagWriter.writeEliteAuto(mifare!!, data, keyManager!!, bankNumber)
+                        TagWriter.writeEliteAuto(mifare!!, data, keyManager, bankNumber)
                         val write = Intent(NFCIntent.ACTION_NFC_SCANNED)
                         write.putExtra(
                             NFCIntent.EXTRA_SIGNATURE,
@@ -326,8 +326,8 @@ class NfcActivity : AppCompatActivity() {
                     } else {
                         update = TagReader.readFromTag(mifare)
                         TagWriter.writeToTagAuto(
-                            mifare!!, data!!, keyManager!!,
-                            prefs!!.tagTypeValidation()
+                            mifare!!, data!!, keyManager,
+                            prefs.tagTypeValidation()
                         )
                         setResult(RESULT_OK)
                     }
@@ -336,8 +336,8 @@ class NfcActivity : AppCompatActivity() {
                             NFCIntent.EXTRA_IGNORE_TAG_ID, false
                         )
                         TagWriter.restoreTag(
-                            mifare!!, data!!, ignoreUid, keyManager!!,
-                            prefs!!.tagTypeValidation()
+                            mifare!!, data!!, ignoreUid, keyManager,
+                            prefs.tagTypeValidation()
                         )
                         setResult(RESULT_OK)
                     }
@@ -353,7 +353,7 @@ class NfcActivity : AppCompatActivity() {
                                 showMessage(R.string.bank_writing, x + 1, amiiboList.size)
                                 val tagData = amiiboList[x].data
                                 if (null != tagData) {
-                                    TagWriter.writeEliteAuto(mifare!!, tagData, keyManager!!, x)
+                                    TagWriter.writeEliteAuto(mifare!!, tagData, keyManager, x)
                                 } else {
                                     Toasty(this).Long(
                                         getString(
@@ -373,7 +373,7 @@ class NfcActivity : AppCompatActivity() {
                                 var tagData = TagArray.getValidatedData(keyManager, amiiboList[x].data)
                                 if (null == tagData) tagData =
                                     foomiibo.generateData(amiiboList[x].id)
-                                TagWriter.writeEliteAuto(mifare!!, tagData, keyManager!!, x)
+                                TagWriter.writeEliteAuto(mifare!!, tagData, keyManager, x)
                                 x++
                             }
                         }
@@ -524,7 +524,7 @@ class NfcActivity : AppCompatActivity() {
                             }.show()
                         }
                     }
-                    prefs!!.eliteEnabled() -> {
+                    prefs.eliteEnabled() -> {
                         when {
                             e is TagLostException -> {
                                 showMessage(R.string.speed_scan)
@@ -672,15 +672,13 @@ class NfcActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         clearError()
-        if (null == keyManager)
-            keyManager = KeyManager(this)
         if (null == nfcAdapter)
             nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         when (intent.action) {
             NFCIntent.ACTION_WRITE_TAG_FULL,
             NFCIntent.ACTION_WRITE_TAG_DATA,
             NFCIntent.ACTION_WRITE_ALL_TAGS -> {
-                if (keyManager!!.isKeyMissing)
+                if (keyManager.isKeyMissing)
                     showError("Keys not loaded")
                 startNfcMonitor()
             }

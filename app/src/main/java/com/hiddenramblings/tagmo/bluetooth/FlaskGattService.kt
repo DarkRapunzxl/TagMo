@@ -190,9 +190,7 @@ class FlaskGattService : Service() {
                                 }
                             } else {
                                 listener?.onFlaskListRetrieved(
-                                    JSONArray(
-                                        escapedList
-                                    )
+                                    JSONArray(escapedList)
                                 )
                             }
                         } catch (e: JSONException) {
@@ -241,11 +239,9 @@ class FlaskGattService : Service() {
                             if (event == "button") listener?.onFlaskActiveChanged(jsonObject)
                             if (event == "delete") listener?.onFlaskStatusChanged(jsonObject)
                         } catch (e: JSONException) {
-                            if (null != e.message && e.message!!.contains("tag.setTag")) {
+                            if (null != e.message && e.message!!.contains("tag.setTag"))
                                 activeAmiibo
-                            } else {
-                                Debug.warn(e)
-                            }
+                            else Debug.warn(e)
                         }
                     }
                     response = StringBuilder()
@@ -547,6 +543,8 @@ class FlaskGattService : Service() {
                 val chunk = chunks[i]
                 flaskHandler.postDelayed({
                     try {
+                        mCharacteristicTX!!.writeType =
+                            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                         if (Debug.isNewer(Build.VERSION_CODES.TIRAMISU)) {
                             mBluetoothGatt!!.writeCharacteristic(
                                 mCharacteristicTX!!, chunk,
@@ -554,8 +552,6 @@ class FlaskGattService : Service() {
                             )
                         } else @Suppress("DEPRECATION") {
                             mCharacteristicTX!!.value = chunk
-                            mCharacteristicTX!!.writeType =
-                                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                             mBluetoothGatt!!.writeCharacteristic(mCharacteristicTX)
                         }
                     } catch (ex: NullPointerException) {
@@ -574,6 +570,8 @@ class FlaskGattService : Service() {
                 val chunk = chunks[i]
                 flaskHandler.postDelayed({
                     try {
+                        mCharacteristicTX!!.writeType =
+                            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                         if (Debug.isNewer(Build.VERSION_CODES.TIRAMISU)) {
                             mBluetoothGatt!!.writeCharacteristic(
                                 mCharacteristicTX!!, chunk.encodeToByteArray(),
@@ -581,8 +579,6 @@ class FlaskGattService : Service() {
                             )
                         } else @Suppress("DEPRECATION") {
                             mCharacteristicTX!!.value = chunk.encodeToByteArray()
-                            mCharacteristicTX!!.writeType =
-                                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                             mBluetoothGatt!!.writeCharacteristic(mCharacteristicTX)
                         }
                     } catch (ex: NullPointerException) {

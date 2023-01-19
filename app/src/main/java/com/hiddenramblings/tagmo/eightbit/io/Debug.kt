@@ -112,7 +112,7 @@ object Debug {
     }
     
     fun getExceptionClass(e: Exception) : String {
-        return e.cause?.javaClass?.name ?: "UnknownException"
+        return e.cause?.javaClass?.name ?: e.javaClass.name
     }
 
     fun hasException(e: Exception, target: String): Boolean {
