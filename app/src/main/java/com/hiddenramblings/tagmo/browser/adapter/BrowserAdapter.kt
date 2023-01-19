@@ -116,12 +116,11 @@ class BrowserAdapter(
             mSectionPositions = ArrayList(36)
             val amiiboManager = settings.amiiboManager
             if (null != amiiboManager) {
-                var i = 0
-                val size = filteredData?.size ?: 0
-                while (i < size) {
+                filteredData?.indices?.forEach { i ->
                     val amiiboId = filteredData?.get(i)?.id
                     var amiibo = amiiboManager.amiibos[amiiboId]
-                    if (null == amiibo) amiibo = Amiibo(amiiboManager, amiiboId!!, null, null)
+                    if (null == amiibo)
+                        amiibo = Amiibo(amiiboManager, amiiboId!!, null, null)
                     var heading: String? = null
                     var section: String? = null
                     when (SORT.valueOf(settings.sort)) {
@@ -147,7 +146,6 @@ class BrowserAdapter(
                         sections.add(section)
                         mSectionPositions!!.add(i)
                     }
-                    i++
                 }
             }
         }

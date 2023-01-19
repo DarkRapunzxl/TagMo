@@ -30,8 +30,8 @@ object GattArray {
         } else {
             var index = 0
             while (index < size) {
-                stringPortions.add(largeString.substring(
-                        index, (index + sizePerPortion).coerceAtMost(largeString.length)
+                stringPortions.add(largeString.substring(index,
+                    (index + sizePerPortion).coerceAtMost(largeString.length)
                 ))
                 index += sizePerPortion
             }

@@ -297,9 +297,8 @@ object Debug {
         log.append(TagMo.getVersionLabel(true))
         log.append(separator)
         log.append("Android ")
-        val fields = VERSION_CODES::class.java.fields
         var codeName = "UNKNOWN"
-        for (field in fields) {
+        for (field in VERSION_CODES::class.java.fields) {
             try {
                 if (field.getInt(VERSION_CODES::class.java) == Build.VERSION.SDK_INT) {
                     codeName = field.name

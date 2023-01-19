@@ -556,23 +556,24 @@ class BrowserActivity : AppCompatActivity(), BrowserSettingsListener,
         }
     }
 
-    private val animationArray: ArrayList<ValueAnimator> = arrayListOf()
-
-    private fun getAnimationArray() {
-        val colorRed = ContextCompat.getColor(this, android.R.color.holo_red_light)
-        val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_light)
-        val colorBlue = ContextCompat.getColor(this, android.R.color.holo_blue_light)
-        animationArray.add(ValueAnimator.ofObject(ArgbEvaluator(), colorRed, colorGreen))
-        animationArray.add(ValueAnimator.ofObject(ArgbEvaluator(), colorGreen, colorBlue))
-        animationArray.add(ValueAnimator.ofObject(ArgbEvaluator(), colorBlue, colorRed))
-    }
+    private var animationArray: ArrayList<ValueAnimator> = arrayListOf()
     private fun onTextColorAnimation(textView: TextView?, index: Int) {
         if (textView?.isVisible == true) {
-            if (animationArray.isEmpty()) getAnimationArray()
+            if (animationArray.isEmpty()) {
+                val colorRed = ContextCompat.getColor(this, android.R.color.holo_red_light)
+                val colorGreen = ContextCompat.getColor(this, android.R.color.holo_green_light)
+                val colorBlue = ContextCompat.getColor(this, android.R.color.holo_blue_light)
+                animationArray.addAll(arrayListOf(
+                    ValueAnimator.ofObject(ArgbEvaluator(), colorRed, colorGreen),
+                    ValueAnimator.ofObject(ArgbEvaluator(), colorGreen, colorBlue),
+                    ValueAnimator.ofObject(ArgbEvaluator(), colorBlue, colorRed)
+                ))
+            }
             val colorAnimation: ValueAnimator = animationArray[index]
             colorAnimation.addUpdateListener { animator ->
                 textView.setTextColor(animator.animatedValue as Int)
             }
+            colorAnimation.duration = 250
             colorAnimation.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     animation.removeAllListeners()

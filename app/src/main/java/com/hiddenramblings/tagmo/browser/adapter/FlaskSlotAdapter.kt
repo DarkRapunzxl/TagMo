@@ -86,12 +86,12 @@ class FlaskSlotAdapter(
     }
 
     override fun onBindViewHolder(holder: FlaskViewHolder, position: Int) {
-        val highlight = holder.itemView.findViewById<View>(R.id.highlight)
-        if (mPrefs.flaskActiveSlot() == position) {
-            highlight.setBackgroundResource(R.drawable.cardview_outline)
-        } else {
-            highlight.setBackgroundResource(0)
-        }
+//        val highlight = holder.itemView.findViewById<View>(R.id.highlight)
+//        if (mPrefs.flaskActiveSlot() == position) {
+//            highlight.setBackgroundResource(R.drawable.cardview_outline)
+//        } else {
+//            highlight.setBackgroundResource(0)
+//        }
         holder.itemView.setOnClickListener {
             if (null != holder.listener) {
                 holder.listener.onAmiiboClicked(holder.amiibo, holder.bindingAdapterPosition)

@@ -154,13 +154,11 @@ class QRGEncoder(data: String?, bundle: Bundle?, type: Int, private var dimensio
                 }
                 val uniquePhones: MutableCollection<String> = HashSet(keysPhone.size)
                 run {
-                    var x = 0
-                    while (x < keysPhone.size) {
+                    for (x in keysPhone.indices) {
                         val phone = trim(bundle.getString(keysPhone[x]))
                         if (phone != null) {
                             uniquePhones.add(phone)
                         }
-                        x++
                     }
                 }
                 for (phone in uniquePhones) {
@@ -174,13 +172,11 @@ class QRGEncoder(data: String?, bundle: Bundle?, type: Int, private var dimensio
                     )
                 }
                 val uniqueEmails: MutableCollection<String> = HashSet(keysEmail.size)
-                var x = 0
-                while (x < keysEmail.size) {
+                for (x in keysEmail.indices) {
                     val email = trim(bundle.getString(keysEmail[x]))
                     if (email != null) {
                         uniqueEmails.add(email)
                     }
-                    x++
                 }
                 for (email in uniqueEmails) {
                     newContents.append("EMAIL:").append(escapeVCard(email)) //.append(';')

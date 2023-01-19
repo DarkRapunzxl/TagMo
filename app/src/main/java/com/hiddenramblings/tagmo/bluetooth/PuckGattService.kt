@@ -12,7 +12,7 @@ import android.bluetooth.*
 import android.content.Intent
 import android.os.*
 import androidx.annotation.RequiresApi
-import com.hiddenramblings.tagmo.bluetooth.GattArray.byteToPortions
+import com.hiddenramblings.tagmo.bluetooth.GattArray
 import com.hiddenramblings.tagmo.eightbit.io.Debug
 import com.hiddenramblings.tagmo.nfctech.NfcByte
 import java.util.*
@@ -402,7 +402,7 @@ class PuckGattService : Service() {
     }
 
     private fun delayedWriteCharacteristic(value: ByteArray) {
-        val chunks = byteToPortions(value, maxTransmissionUnit - 3)
+        val chunks = GattArray.byteToPortions(value, maxTransmissionUnit - 3)
         val commandQueue = commandCallbacks.size + 1 + chunks.size
         puckHandler.postDelayed({
             var i = 0

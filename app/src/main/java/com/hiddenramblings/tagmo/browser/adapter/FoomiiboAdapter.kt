@@ -110,24 +110,22 @@ class FoomiiboAdapter(
         val sections: MutableList<String> = ArrayList(36)
         if (itemCount > 0) {
             mSectionPositions = ArrayList(36)
-            var i = 0
-            val size = filteredData!!.size
-            while (i < size) {
-                val amiibo = filteredData!![i]
+            filteredData?.indices?.forEach { i ->
+                val amiibo = filteredData?.get(i)
                 var heading: String? = null
                 var section: String? = null
                 when (SORT.valueOf(settings.sort)) {
-                    SORT.NAME -> heading = amiibo.name
-                    SORT.CHARACTER -> if (null != amiibo.character) {
+                    SORT.NAME -> heading = amiibo?.name
+                    SORT.CHARACTER -> if (null != amiibo?.character) {
                         heading = amiibo.character!!.name
                     }
-                    SORT.GAME_SERIES -> if (null != amiibo.gameSeries) {
+                    SORT.GAME_SERIES -> if (null != amiibo?.gameSeries) {
                         heading = amiibo.gameSeries!!.name
                     }
-                    SORT.AMIIBO_SERIES -> if (null != amiibo.amiiboSeries) {
+                    SORT.AMIIBO_SERIES -> if (null != amiibo?.amiiboSeries) {
                         heading = amiibo.amiiboSeries!!.name
                     }
-                    SORT.AMIIBO_TYPE -> if (null != amiibo.amiiboType) {
+                    SORT.AMIIBO_TYPE -> if (null != amiibo?.amiiboType) {
                         heading = amiibo.amiiboType!!.name
                     }
                     else -> {}
@@ -139,7 +137,6 @@ class FoomiiboAdapter(
                     sections.add(section)
                     mSectionPositions!!.add(i)
                 }
-                i++
             }
         }
         return sections.toTypedArray()

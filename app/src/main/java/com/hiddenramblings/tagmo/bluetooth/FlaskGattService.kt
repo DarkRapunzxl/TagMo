@@ -14,9 +14,6 @@ import android.os.*
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import com.hiddenramblings.tagmo.amiibo.Amiibo
-import com.hiddenramblings.tagmo.bluetooth.GattArray.byteToPortions
-import com.hiddenramblings.tagmo.bluetooth.GattArray.stringToPortions
-import com.hiddenramblings.tagmo.bluetooth.GattArray.stringToUnicode
 import com.hiddenramblings.tagmo.charset.CharsetCompat
 import com.hiddenramblings.tagmo.eightbit.io.Debug
 import org.json.JSONArray
@@ -104,7 +101,7 @@ class FlaskGattService : Service() {
         fun onGattConnectionLost()
     }
 
-    var response = StringBuilder()
+    private var response = StringBuilder()
     private var rangeIndex = 0
     private fun getCharacteristicValue(characteristic: BluetoothGattCharacteristic, output: String?) {
         if (!output.isNullOrEmpty()) {
@@ -216,9 +213,10 @@ class FlaskGattService : Service() {
                     }
                 } else if (progress.startsWith("tag.download")) {
                     if (progress.endsWith(">") || progress.endsWith("\n")) {
-                        val getData = progress.split("new Uint8Array".toRegex()).toTypedArray()
                         if (null != listener) {
-                            for (dataString in getData) {
+                            for (dataString in progress.split(
+                                "new Uint8Array".toRegex()).toTypedArray()
+                            ) {
                                 if (dataString.startsWith("tag.download")
                                     && dataString.endsWith("=")
                                 ) continue
@@ -542,13 +540,11 @@ class FlaskGattService : Service() {
     }
 
     private fun delayedWriteCharacteristic(value: ByteArray) {
-        val chunks = byteToPortions(value, maxTransmissionUnit)
+        val chunks = GattArray.byteToPortions(value, maxTransmissionUnit)
         val commandQueue = commandCallbacks.size + 1 + chunks.size
         flaskHandler.postDelayed({
-            var i = 0
-            while (i < chunks.size) {
+            for (i in chunks.indices) {
                 val chunk = chunks[i]
-                if (null == mCharacteristicTX) continue
                 flaskHandler.postDelayed({
                     try {
                         if (Debug.isNewer(Build.VERSION_CODES.TIRAMISU)) {
@@ -566,19 +562,16 @@ class FlaskGattService : Service() {
                         listener?.onServicesDiscovered()
                     }
                 }, (i + 1) * chunkTimeout)
-                i += 1
             }
         }, commandQueue * chunkTimeout)
     }
 
     private fun delayedWriteCharacteristic(value: String) {
-        val chunks = stringToPortions(value, maxTransmissionUnit)
+        val chunks = GattArray.stringToPortions(value, maxTransmissionUnit)
         val commandQueue = commandCallbacks.size + 1 + chunks.size
         flaskHandler.postDelayed({
-            var i = 0
-            while (i < chunks.size) {
+            for (i in chunks.indices) {
                 val chunk = chunks[i]
-                if (null == mCharacteristicTX) continue
                 flaskHandler.postDelayed({
                     try {
                         if (Debug.isNewer(Build.VERSION_CODES.TIRAMISU)) {
@@ -596,7 +589,6 @@ class FlaskGattService : Service() {
                         listener?.onServicesDiscovered()
                     }
                 }, (i + 1) * chunkTimeout)
-                i += 1
             }
         }, commandQueue * chunkTimeout)
     }
@@ -664,29 +656,23 @@ class FlaskGattService : Service() {
 
     fun uploadAmiiboFile(tagData: ByteArray, amiibo: Amiibo, complete: Boolean) {
         delayedTagCharacteristic("startTagUpload(" + tagData.size + ")")
-        val chunks = stringToPortions(
-            Base64.encodeToString(
-                tagData, Base64.NO_PADDING or Base64.NO_CLOSE or Base64.NO_WRAP
-            ), 128
-        )
-        var i = 0
-        while (i < chunks.size) {
-            val chunk = chunks[i]
-            delayedByteCharacteric(
-                "tag.tagUploadChunk(\"$chunk\")\n".toByteArray(CharsetCompat.UTF_8)
+        for (chunk in GattArray.byteToPortions(tagData, 128)) {
+            val byteString = Base64.encodeToString(
+                chunk, Base64.NO_PADDING or Base64.NO_CLOSE or Base64.NO_WRAP
             )
-            i += 1
+            delayedByteCharacteric(
+                "tag.tagUploadChunk(\"$byteString\")\n".toByteArray(CharsetCompat.UTF_8)
+            )
         }
+
         val flaskTail = Amiibo.idToHex(amiibo.id).substring(8, 16).toInt(16).toString(36)
         val reserved = flaskTail.length + 3 // |tail|#
-        val nameUnicode = stringToUnicode(amiibo.name!!)
-        val amiiboName = if (nameUnicode.length + reserved > 28) nameUnicode.substring(
-            0, nameUnicode.length
-                    - (nameUnicode.length + reserved - 28)
+        val nameUnicode = GattArray.stringToUnicode(amiibo.name!!)
+        val amiiboName = if (nameUnicode.length + reserved > 28)
+            nameUnicode.substring(0, nameUnicode.length - (nameUnicode.length + reserved - 28)
         ) else nameUnicode
         delayedTagCharacteristic(
-            "saveUploadedTag(\""
-                    + amiiboName + "|" + flaskTail + "|0\")"
+            "saveUploadedTag(\"$amiiboName|$flaskTail|0\")"
         )
         if (complete) {
             delayedTagCharacteristic("uploadsComplete()")
@@ -699,7 +685,7 @@ class FlaskGattService : Service() {
             delayedTagCharacteristic("setTag(\"$name||$tail\")")
         } else if (null != name) {
             val reserved = tail.length + 3 // |tail|#
-            val nameUnicode = stringToUnicode(name)
+            val nameUnicode = GattArray.stringToUnicode(name)
             nameCompat = if (nameUnicode.length + reserved > 28) nameUnicode.substring(
                 0, nameUnicode.length
                         - (nameUnicode.length + reserved - 28)
@@ -711,14 +697,12 @@ class FlaskGattService : Service() {
 
     private fun fixAmiiboName(name: String?, tail: String) {
         val reserved = tail.length + 3 // |tail|#
-        val nameUnicode = stringToUnicode(name!!)
+        val nameUnicode = GattArray.stringToUnicode(name!!)
         val amiiboName = if (nameUnicode.length + reserved > 28) nameUnicode.substring(
-            0, nameUnicode.length
-                    - (nameUnicode.length + reserved - 28)
+            0, nameUnicode.length - (nameUnicode.length + reserved - 28)
         ) else nameUnicode
         promptTagCharacteristic(
-            "rename(\"" + amiiboName + "|" + tail
-                    + "\",\"" + amiiboName + "|" + tail + "|0\" )"
+            "rename(\"$amiiboName|$tail\",\"$amiiboName|$tail|0\" )"
         )
         deviceAmiibo
     }
@@ -728,7 +712,7 @@ class FlaskGattService : Service() {
             delayedTagCharacteristic("remove(\"$name||$tail\")")
         } else if (null != name) {
             val reserved = tail.length + 3 // |tail|#
-            val nameUnicode = stringToUnicode(name)
+            val nameUnicode = GattArray.stringToUnicode(name)
             nameCompat = if (nameUnicode.length + reserved > 28)
                 nameUnicode.substring(0, nameUnicode.length - (nameUnicode.length + reserved - 28))
             else nameUnicode
@@ -739,7 +723,7 @@ class FlaskGattService : Service() {
 
     fun downloadAmiibo(name: String?, tail: String) {
         val reserved = tail.length + 3 // |tail|#
-        val nameUnicode = stringToUnicode(name!!)
+        val nameUnicode = GattArray.stringToUnicode(name!!)
         val amiiboName = if (nameUnicode.length + reserved > 28)
             nameUnicode.substring(0, nameUnicode.length - (nameUnicode.length + reserved - 28))
         else nameUnicode
