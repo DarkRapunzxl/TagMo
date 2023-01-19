@@ -94,9 +94,7 @@ class HexAdapter(tagData: ByteArray) : RecyclerView.Adapter<HexAdapter.ViewHolde
         }
     }
 
-    class ViewHolder internal constructor(var view: View) : RecyclerView.ViewHolder(
-        view
-    ) {
+    class ViewHolder internal constructor(var view: View) : RecyclerView.ViewHolder(view) {
         var textView = arrayOfNulls<TextView>(16 + 1)
 
         init {

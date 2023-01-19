@@ -118,8 +118,8 @@ object Debug {
     fun hasException(e: Exception, target: String): Boolean {
         if (e.stackTrace.isNullOrEmpty()) return false
         for (i in e.stackTrace.indices) {
-            val line = e.stackTrace.getOrNull(i)
-            if (null != line && (line.className + line.methodName) == target) return true
+            val element = e.stackTrace.getOrNull(i)
+            if (null != element && (element.className + element.methodName) == target) return true
         }
         return false
     }
@@ -300,9 +300,8 @@ object Debug {
         var codeName = "UNKNOWN"
         for (field in VERSION_CODES::class.java.fields) {
             try {
-                if (field.getInt(VERSION_CODES::class.java) == Build.VERSION.SDK_INT) {
+                if (field.getInt(VERSION_CODES::class.java) == Build.VERSION.SDK_INT)
                     codeName = field.name
-                }
             } catch (e: IllegalAccessException) {
                 e.printStackTrace()
             }
@@ -373,11 +372,7 @@ object Debug {
                 "ViewRootImpl*:S", "IssueReporterActivity:S", "*:W"
             )
         )
-        val reader = BufferedReader(
-            InputStreamReader(
-                mLogcatProc.inputStream
-            )
-        )
+        val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
         log.append(separator).append(separator)
         var line: String?
         while (null != reader.readLine().also { line = it }) {

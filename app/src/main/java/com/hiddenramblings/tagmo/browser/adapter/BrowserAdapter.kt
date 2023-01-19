@@ -36,8 +36,7 @@ import com.hiddenramblings.tagmo.widget.BoldSpannable
 import java.util.*
 
 class BrowserAdapter(
-    private val settings: BrowserSettings,
-    private val listener: OnAmiiboClickListener
+    private val settings: BrowserSettings, private val listener: OnAmiiboClickListener
 ) : RecyclerView.Adapter<BrowserAdapter.AmiiboViewHolder>(), Filterable, BrowserSettingsListener,
     SectionIndexer {
     private var data = ArrayList<AmiiboFile?>()
@@ -162,26 +161,10 @@ class BrowserAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AmiiboViewHolder {
         return when (VIEW.valueOf(viewType)) {
-            VIEW.COMPACT -> CompactViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.LARGE -> LargeViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.IMAGE -> ImageViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.SIMPLE -> SimpleViewHolder(
-                parent,
-                settings,
-                listener
-            )
+            VIEW.COMPACT -> CompactViewHolder(parent, settings, listener)
+            VIEW.LARGE -> LargeViewHolder(parent, settings, listener)
+            VIEW.IMAGE -> ImageViewHolder(parent, settings, listener)
+            VIEW.SIMPLE -> SimpleViewHolder(parent, settings, listener)
         }
     }
 
@@ -279,9 +262,7 @@ class BrowserAdapter(
     }
 
     abstract class AmiiboViewHolder(
-        itemView: View,
-        private val settings: BrowserSettings,
-        val listener: OnAmiiboClickListener?
+        itemView: View, private val settings: BrowserSettings, val listener: OnAmiiboClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
         val txtError: TextView?
         val txtName: TextView?
@@ -478,8 +459,7 @@ class BrowserAdapter(
     }
 
     internal class SimpleViewHolder(
-        parent: ViewGroup, settings: BrowserSettings,
-        listener: OnAmiiboClickListener?
+        parent: ViewGroup, settings: BrowserSettings, listener: OnAmiiboClickListener?
     ) : AmiiboViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.amiibo_simple_card, parent, false

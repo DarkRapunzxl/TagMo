@@ -25,8 +25,7 @@ import com.hiddenramblings.tagmo.browser.BrowserSettings.VIEW
 import com.hiddenramblings.tagmo.browser.adapter.FlaskSlotAdapter.FlaskViewHolder
 
 class FlaskSlotAdapter(
-    private val settings: BrowserSettings,
-    private val listener: OnAmiiboClickListener
+    private val settings: BrowserSettings, private val listener: OnAmiiboClickListener
 ) : RecyclerView.Adapter<FlaskViewHolder>(), BrowserSettingsListener {
     var mPrefs = Preferences(TagMo.appContext)
     private var flaskAmiibo: ArrayList<Amiibo?> = ArrayList()
@@ -62,36 +61,24 @@ class FlaskSlotAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlaskViewHolder {
         return when (VIEW.valueOf(viewType)) {
-            VIEW.COMPACT -> CompactViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.LARGE -> LargeViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.IMAGE -> ImageViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.SIMPLE -> SimpleViewHolder(
-                parent,
-                settings,
-                listener
-            )
+            VIEW.COMPACT -> CompactViewHolder(parent, settings, listener)
+            VIEW.LARGE -> LargeViewHolder(parent, settings, listener)
+            VIEW.IMAGE -> ImageViewHolder(parent, settings, listener)
+            VIEW.SIMPLE -> SimpleViewHolder(parent, settings, listener)
+        }
+    }
+
+    private fun setIsHighlighted(holder: FlaskViewHolder, position: Int) {
+        val highlight = holder.itemView.findViewById<View>(R.id.highlight)
+        if (mPrefs.flaskActiveSlot() == position) {
+            highlight.setBackgroundResource(R.drawable.cardview_outline)
+        } else {
+            highlight.setBackgroundResource(0)
         }
     }
 
     override fun onBindViewHolder(holder: FlaskViewHolder, position: Int) {
-//        val highlight = holder.itemView.findViewById<View>(R.id.highlight)
-//        if (mPrefs.flaskActiveSlot() == position) {
-//            highlight.setBackgroundResource(R.drawable.cardview_outline)
-//        } else {
-//            highlight.setBackgroundResource(0)
-//        }
+        // setIsHighlighted(holder, position)
         holder.itemView.setOnClickListener {
             if (null != holder.listener) {
                 holder.listener.onAmiiboClicked(holder.amiibo, holder.bindingAdapterPosition)
@@ -108,8 +95,7 @@ class FlaskSlotAdapter(
     }
 
     abstract class FlaskViewHolder(
-        itemView: View, private val settings: BrowserSettings,
-        val listener: OnAmiiboClickListener?
+        itemView: View, private val settings: BrowserSettings, val listener: OnAmiiboClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
         val txtError: TextView?
         val txtName: TextView?

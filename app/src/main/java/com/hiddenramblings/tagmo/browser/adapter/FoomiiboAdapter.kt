@@ -29,8 +29,7 @@ import com.hiddenramblings.tagmo.widget.BoldSpannable
 import java.util.*
 
 class FoomiiboAdapter(
-    private val settings: BrowserSettings,
-    private val listener: OnFoomiiboClickListener
+    private val settings: BrowserSettings, private val listener: OnFoomiiboClickListener
 ) : RecyclerView.Adapter<FoomiiboViewHolder>(), Filterable, BrowserSettingsListener,
     SectionIndexer {
     private var data = ArrayList<Amiibo>()
@@ -148,26 +147,10 @@ class FoomiiboAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoomiiboViewHolder {
         return when (VIEW.valueOf(viewType)) {
-            VIEW.COMPACT -> CompactViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.LARGE -> LargeViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.IMAGE -> ImageViewHolder(
-                parent,
-                settings,
-                listener
-            )
-            VIEW.SIMPLE -> SimpleViewHolder(
-                parent,
-                settings,
-                listener
-            )
+            VIEW.COMPACT -> CompactViewHolder(parent, settings, listener)
+            VIEW.LARGE -> LargeViewHolder(parent, settings, listener)
+            VIEW.IMAGE -> ImageViewHolder(parent, settings, listener)
+            VIEW.SIMPLE -> SimpleViewHolder(parent, settings, listener)
         }
     }
 
@@ -261,8 +244,7 @@ class FoomiiboAdapter(
     }
 
     abstract class FoomiiboViewHolder(
-        itemView: View, private val settings: BrowserSettings,
-        val listener: OnFoomiiboClickListener?
+        itemView: View, private val settings: BrowserSettings, val listener: OnFoomiiboClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
         val txtError: TextView?
         val txtName: TextView?
@@ -396,8 +378,7 @@ class FoomiiboAdapter(
     }
 
     internal class SimpleViewHolder(
-        parent: ViewGroup, settings: BrowserSettings,
-        listener: OnFoomiiboClickListener?
+        parent: ViewGroup, settings: BrowserSettings, listener: OnFoomiiboClickListener?
     ) : FoomiiboViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.amiibo_simple_card, parent, false
@@ -406,8 +387,7 @@ class FoomiiboAdapter(
     )
 
     internal class CompactViewHolder(
-        parent: ViewGroup, settings: BrowserSettings,
-        listener: OnFoomiiboClickListener?
+        parent: ViewGroup, settings: BrowserSettings, listener: OnFoomiiboClickListener?
     ) : FoomiiboViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.amiibo_compact_card, parent, false
@@ -416,8 +396,7 @@ class FoomiiboAdapter(
     )
 
     internal class LargeViewHolder(
-        parent: ViewGroup, settings: BrowserSettings,
-        listener: OnFoomiiboClickListener?
+        parent: ViewGroup, settings: BrowserSettings, listener: OnFoomiiboClickListener?
     ) : FoomiiboViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.amiibo_large_card, parent, false
@@ -426,8 +405,7 @@ class FoomiiboAdapter(
     )
 
     internal class ImageViewHolder(
-        parent: ViewGroup, settings: BrowserSettings,
-        listener: OnFoomiiboClickListener?
+        parent: ViewGroup, settings: BrowserSettings, listener: OnFoomiiboClickListener?
     ) : FoomiiboViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.amiibo_image_card, parent, false
